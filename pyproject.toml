@@ -1,0 +1,75 @@
+[project]
+name = "r_monitor"
+dynamic = ["version"]
+description = "Windows 桌面系统监控工具：CPU / GPU / 每进程网络流量"
+readme = "README.md"
+requires-python = ">=3.10"
+license = "MIT"
+license-files = ["LICENSE"]
+authors = [{ name = "kim" }]
+dependencies = [
+    "PySide6>=6.6",
+    "psutil>=5.9",
+    "pyqtgraph>=0.13",
+]
+
+[project.optional-dependencies]
+# npcap 抓包（每进程 TCP+UDP 字节），需另装 npcap
+sniffer = ["scapy>=2.5"]
+# 开发与构建工具
+dev = [
+    "pytest>=8",
+    "ruff>=0.6",
+    "mypy>=1.10",
+    "pyinstaller>=6.0",
+]
+
+[project.scripts]
+# 命令行入口（由 r_monitor/cli.py 提供 main）
+r-monitor = "r_monitor.cli:main"
+
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools]
+# 源码以包形式存在，PyInstaller 走 spec 文件；这里只声明包，不做 install 分发
+packages = ["r_monitor", "r_monitor.collectors", "r_monitor.ui"]
+
+[tool.setuptools.dynamic]
+# 版本号唯一来源为 r_monitor.config.APP_VERSION，避免与代码中的版本漂移
+version = { attr = "r_monitor.config.APP_VERSION" }
+
+[tool.ruff]
+target-version = "py310"
+line-length = 100
+
+[tool.ruff.lint]
+select = ["E", "F", "W", "I", "UP", "B"]
+ignore = [
+    # 单字母变量在 ctypes/性能计数器绑定处更清晰
+    "E741",
+]
+
+[tool.ruff.lint.per-file-ignores]
+# 工具脚本里为了可读保留一些宽松规则
+"tools/*.py" = ["E402"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-q"
+
+[tool.mypy]
+python_version = "3.10"
+# 第三方库无 stub，避免因缺失 stubs 报错；后续可逐步收紧
+ignore_missing_imports = true
+check_untyped_defs = true
+warn_unused_ignores = false
+# 项目内允许渐进式标注，先不强制全量
+disable_error_code = ["annotation-unchecked"]
+
+# UI 层大量依赖 Qt 枚举的动态类属性访问（如 Qt.Window、Qt.AlignCenter），
+# PySide6 的 stub 无法静态表达，属于误报而非代码问题，单独放宽。
+[[tool.mypy.overrides]]
+module = "r_monitor.ui.*"
+ignore_errors = true

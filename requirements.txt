@@ -1,0 +1,6 @@
+PySide6>=6.6
+psutil>=5.9
+pyqtgraph>=0.13
+
+# 可选：npcap 抓包（每进程 TCP+UDP 字节），安装后自动启用。
+# 安装：pip install "scapy>=2.5"（另需安装 npcap 驱动，见 https://npcap.com/）
