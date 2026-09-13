@@ -3,7 +3,7 @@
 Windows 桌面系统监控工具：实时读取 **CPU / GPU 负载**，并记录**消耗高流量的上传、下载进程**。
 
 
-![img.png](img.png)
+![软件界面截图](assets/screenshot.png)
 
 ## 功能
 
